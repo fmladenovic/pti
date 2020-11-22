@@ -45,7 +45,7 @@ def softmax(q, t):
     for i in range(len(precalculated_values) - 1):
         first = precalculated_values[i]
         second = precalculated_values[i+1]
-        if(first < picker and picker < second ):
+        if(first < picker and picker <= second ):
             return i + 1
     return 0 # ako nije između prvog i drugog znači da je manji od prvog
 
