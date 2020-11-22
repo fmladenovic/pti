@@ -39,10 +39,10 @@ Za automatizaciju poteznih igara koristi se minimax algoritam. Njegova najprosti
 U nastavku se nalaze dve partije gde je prilikom pokretanja druge partije blago poboljšan minimax algoritam tako da slabije ocenjuje poteze koji kasnije dovode do pobede.
 
 	def  minimax(table, depth, is_maximizing, computer_sign, player_sign):
-			last_move = PLAYER  if  is_maximizing  else  COMPUTER
-			result = announce_victory(table, last_move)
-			if  not  result == NOONE:
-				return  result / depth
+		last_move = PLAYER  if  is_maximizing  else  COMPUTER
+		result = announce_victory(table, last_move)
+		if  not  result == NOONE:
+			return  result / depth
 		...
 
 Primeri partija:
