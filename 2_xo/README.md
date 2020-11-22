@@ -3,9 +3,8 @@ Iks oks je popularna igra za dva igrača. Igra se na tabli od 3x3 polja. Igrači
 
 ## *Minimax* algoritam
 Za automatizaciju poteznih igara koristi se minimax algoritam. Njegova najprostija primena je upravu u igrici XO. Ostale primene su u micama ([nine men's morris](https://en.wikipedia.org/wiki/Nine_men%27s_morris)), u šahu ([chess](https://en.wikipedia.org/wiki/Chess))... Igrica XO predstavlja najprostiju primenu ovog algoritma zato što igrica ima konačno mogućih slučajeva i tih slučajeva nema veliki broj. Konkretno, algoritam teži da minimizuje mogući gubitak u najboljim slučajevima. Alternativno, može se posmatrati i kao maksimizovanje minimalne dobiti.
-<p align="center">
-<img src = "https://i.stack.imgur.com/lrXqH.png" alt= "xo" width="80%>
-</p>
+
+<img src = "https://i.stack.imgur.com/lrXqH.png" alt= "xo" width="100%">
 
 ### Implementacija *minimax* algoritma
 	def  minimax(table, depth, is_maximizing, computer_sign, player_sign):
