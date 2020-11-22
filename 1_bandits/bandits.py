@@ -78,6 +78,9 @@ learn(q, 1, 102, 0.5)
 
 bandits = [(1, 1), (5, 10), (-3, 15), (15, 2), (-24, 3)]
 
+changed_bandits = [(8, 1), (10, 2), (-5, 2), (-30, 2), (12, 3)]
+old_bandits = [(1, 1), (5, 10), (-3, 15), (15, 2), (-24, 3)]
+
 # q = []
 # for b in bandits:
 #     q.append(0)
@@ -89,15 +92,23 @@ rewards = []
 qs = [q]
 
 for k in range(1000):
+    # Nagla promena srednjih vrednosti u 400 iteracija
+    if k >= 300:
+        bandits = changed_bandits
+    if k >= 700:
+        bandits = old_bandits 
+
     # body of the main learning loop
-    # a = eps_greedy(q, 0.2) # test epsilon 
-    a = softmax(q, 10)
+    a = eps_greedy(q, 1)
+    # a = softmax(q, 10)
     r = environment(a, bandits)
     q = learn(q, a, r)
     # logging functions
     actions.append(a)
     rewards.append(r)
     qs.append(q)
+
+
 
 # actions
 
