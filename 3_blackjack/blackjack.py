@@ -1,17 +1,7 @@
-from random import randint
-
-PLAYER = 10
-DEALER = -10
-
-CONTINUE = 2
-
-PLAYERS_VICTORY = 1
-DEALERS_VICTORY = -1
-
-# PLAYERS_BLACKJACK = 4
-# DEALERS_BLACKJACK = -4
-
-TIE = 0
+import sys
+from random import randint, uniform
+import matplotlib.pyplot as plt
+import json
 
 
 CARDS = [ 
@@ -21,52 +11,79 @@ CARDS = [
     '1♠', '2♠', '3♠', '4♠', '5♠', '6♠', '7♠', '8♠', '9♠', '10♠', '12♠', '13♠', '14♠'
 ]
 
+LAMBDA = 0.1
 
-HIT = 5
-HOLD = -2
+PLAYERS_VICTORY = +1
+DEALERS_VICTORY = -1
+TIE = CONTINUE = 0
 
+HIT = 'hit'
+HOLD = 'hold'
+EMPTY = 'empty'
 
-
-################################################################################### VIEW #################################################################################
-def print_state( player_cards, dealer_cards, show_card = False ):
-    player_state = 'PLY:' + 4*' '
-    for card in player_cards:
-        player_state += '{:^4}'.format(card) + ' '
-
-    dealer_state = 'DLR:' + 4*' '
-    for (i,card) in enumerate(dealer_cards):
-        if i == 1 and not show_card:
-            dealer_state += '{:^4}'.format('X') + ' '
-        else:
-            dealer_state += '{:^4}'.format(card) + ' '
-
-    delimiter =  '-' * len(player_state) if len(player_state) > len(dealer_state)  else '-' * len(dealer_state)
-
-    to_print = '\n' + dealer_state + '\n' + delimiter + '\n' + player_state + '\n'
-
-    print(to_print)
+ACTIONS = [HIT, HOLD]
 
 
-def print_victory( end ):
-    if end == CONTINUE:
-        print( 'It is TIE! \n' )
-    elif end == PLAYERS_VICTORY:
-        print( 'It is PLAYERS victory! \n' )
-    elif end == DEALERS_VICTORY:
-        print( 'It is DEALERS victory!')
+#               s       a    q
+# sa_q = {
+#     ([11, False, 5], HIT): 0
+# }
+class GameMemory:
+
+    def __init__(self):
+        self.sa_q = {}
+
+    def q(self, s, a):
+        key = self._convert_to_key(s, a)
+        return  self.sa_q.get( key ) if key in self.sa_q.keys() else 0
+
+    def update_q(self, s, a, r, l  = LAMBDA):
+        key = self._convert_to_key(s, a)
+
+        old_q = self.q(s, a)
+        new_q = old_q + l * ( r - old_q)
+        self.sa_q[key] = new_q
 
 
-def input_action():
-    print('1 -> HIT')
-    print('0 -> HOLD')
-    action = input('Enter action: ')
-    if action == '1':
-        return hit()
+    def _convert_to_key(self, s, a):
+        s_str = [str(part) for part in s]
+        return '[({}, {}, {}), {}]'.format(s_str[0], s_str[1], s_str[2], a)
+
+    def save_qs(self):
+        with open('data.json', 'w') as fp:
+            json.dump(self.sa_q, fp)
+
+
+
+##################################### POLICIES ##################################################
+def greedy(game_memory, state):
+    q_hit = game_memory.q(state, HIT)
+    q_hold = game_memory.q(state, HOLD)
+    return HIT if q_hit >= q_hold else HOLD
+
+
+def e_greedy(game_memory, state, e):
+    rand = uniform(0, 1)
+    if rand < e:
+        return ACTIONS[randint(0, len(ACTIONS)-1)]
     else:
-        return hold()
+        return greedy(game_memory, state)
+
+def learning( game_memory, state, e ):
+    if(state[0] > 17):
+        return HOLD
+    else:
+        return e_greedy(game_memory, state, e)
+
+# TODO: SOFTMAX
 
 
-################################################################################### UTIL #################################################################################
+######################################## UTILITY ##################################################
+def plot_values( values ):
+    plt.plot(range(1, len(values) + 1), values)
+    plt.ylabel('reverds')
+    plt.xlabel('parties')
+    plt.show()
 
 
 def get_value( card ):
@@ -74,141 +91,120 @@ def get_value( card ):
         return 10
     return int(card[0])
 
-def get_card():
-    return CARDS[ randint(0, len(CARDS)-1)]
+
+def get_card_by_value():
+    return get_value(CARDS[ randint(0, len(CARDS)-1)])
 
 
-def calculate_sum(cards):
+def sum_and_useable_ace(old_sum, useable_ace, new_value):
+    new_sum = old_sum + new_value
+
+    if new_sum > 21 and useable_ace:
+        new_sum -= 10
+        return new_sum, False
     
-    card_values = [get_value(card) for card in cards]
-
-    if 1 not in card_values:
-        return sum(card_values)
-    else:
-        card_values_sum = sum(card_values) - 1
-        if card_values_sum + 11 > 21:
-            return card_values_sum + 1
-        else:
-            return card_values_sum + 11
-
-def check_end(player_cards, dealer_cards, move):
-
-    dealer_sum = calculate_sum(dealer_cards)
-    player_sum = calculate_sum(player_cards)
-
-    if move == PLAYER:
-
-        if player_sum > 21:
-            return DEALERS_VICTORY
-        elif player_sum == 21:
-            return PLAYERS_VICTORY if player_sum != dealer_sum else TIE
-        else:
-            return CONTINUE
-
-    else:
-
-        if dealer_sum > 21:
-            return PLAYERS_VICTORY
-        elif dealer_sum == 21:
-            return DEALERS_VICTORY if player_sum != dealer_sum else TIE
-        else:
-            if dealer_sum >= 17:
-                if dealer_sum > player_sum:
-                    return DEALERS_VICTORY
-                elif dealer_sum < player_sum:
-                    return PLAYERS_VICTORY
-                else:
-                    return TIE
-            else:
-                return CONTINUE
+    if new_sum <= 11 and new_value == 1:
+        new_sum += 10
+        return new_sum, True
+    
+    return new_sum, useable_ace
 
 
-################################################################################### GAME PLAY #################################################################################
 
-def hit():
-    return get_card()
-
-def hold():
-    return HOLD
-
+########################################## GAME LOGIC ##################################################
 def begin_round():
     player_cards = []
     dealer_cards = []
 
-    for i in range(4):
-        card = get_card()
+    for i in range(3):
+        card = CARDS[ randint(0, len(CARDS)-1)]
         if i % 2 == 0:
             player_cards.append(card)
         else:
             dealer_cards.append(card)
 
-    return player_cards, dealer_cards
+    return generate_state(player_cards, dealer_cards)
 
-
-def dealer_moves( player_cards, dealer_cards ):
-    print_state(player_cards, dealer_cards, True)
-    while True:
-        
-        end = check_end(player_cards, dealer_cards, DEALER)
-        if end != CONTINUE: return end
-        
-        dealer_cards.append(get_card())
-        print_state(player_cards, dealer_cards, True)
-
-
-def player_moves( player_cards, dealer_cards ):
-
-    print_state(player_cards, dealer_cards, False)
-
-    while True:
-        dealer_cards.append(get_card())
-        print_state(player_cards, dealer_cards, False)
-        check = check_end(player_cards, dealer_cards, PLAYER)
-
-        if check != CONTINUE: return check
-
-
-def human_moves( player_cards, dealer_cards ):
-    print_state(player_cards, dealer_cards, False)
-    while True:
-
-        end = check_end(player_cards, dealer_cards, PLAYER)
-        if end != CONTINUE: return end
-
-        action = input_action()
-        if action == HOLD: 
-            return HOLD
-        else:
-            player_cards.append(get_card())
-            print_state(player_cards, dealer_cards, False)
-
-
-
-def game_round():
-
-    player_cards, dealer_cards = begin_round()
-
-    player_move_end = human_moves( player_cards, dealer_cards ) # human_moves( player_cards, dealer_cards )
-    if player_move_end != HOLD:
-        print_victory(player_move_end)
-        return player_move_end
-
-    dealer_move_end = dealer_moves( player_cards, dealer_cards )
-    print_victory(dealer_move_end)
-    return dealer_move_end
+def generate_state(player_cards, dealer_cards):
+    player_values = [get_value(card) for card in player_cards]
     
+    value = get_value(dealer_cards[0])
+    dealer_value = value if value != 1 else 11   # dealer will have only 1 card on start (we cant see another)
     
+    useable_ace = 1 in player_values and sum(player_values) + 10 <= 21
+    player_value = sum(player_values) if not useable_ace else sum(player_values) + 10
+    return [player_value, useable_ace, dealer_value]
 
 
+def game_round(game_memory):
+    # [ [state, action], ....] = [ [[11, False, 5], 'hit'], [[18, True, 5], 'hold']]
+    init_state = begin_round()
+    state_action_pairs = [[init_state, EMPTY]]
+
+    player_sum = player_turn(game_memory, state_action_pairs)
+
+    if player_sum == 21:
+        return state_action_pairs, PLAYERS_VICTORY
+    elif player_sum > 21:
+        return state_action_pairs, DEALERS_VICTORY
+
+    dealer_sum = dealer_turn(state_action_pairs[0][0][2])
+
+    if player_sum < dealer_sum:
+        return state_action_pairs, DEALERS_VICTORY
+    elif player_sum > dealer_sum:
+        return state_action_pairs, PLAYERS_VICTORY
+    else:
+        return state_action_pairs, TIE
+
+def dealer_turn( dealer_sum ):
+    while dealer_sum < 17:
+        value = get_card_by_value()
+        dealer_sum += value if value != 1 else 11
+    return dealer_sum
+
+def player_turn( game_memory, state_action_pairs):
+    action = ''
+    i = 0
+
+    while action != HOLD and state_action_pairs[i][0][0] < 21:
+        action = learning(game_memory, state_action_pairs[i][0], 0.3) if len(game_memory.sa_q.keys()) > 360 else e_greedy(game_memory, state_action_pairs[i][0], 0.2)
+        state_action_pairs[i][1] = action
+
+        if action == HIT:
+            old_state = state_action_pairs[i][0]
+            new_state = [*sum_and_useable_ace(old_state[0], old_state[1], get_card_by_value()), old_state[2]]
+            state_action_pairs.append([new_state, EMPTY])
+            i+=1
+
+    if state_action_pairs[-1][1] == EMPTY: # EMPTY is our 'exit' state that we won't count
+        return state_action_pairs.pop()[0][0]
+    return state_action_pairs[-1][0][0]
 
 
-def game():
-    scores = []
-    for _ in range(10):
-        end = game_round()
-        scores.append( end )
-    print('TOTAL SCORE -> ', str(sum(scores)), scores, len(scores))
+def game(iterations):
+    game_memory = GameMemory()
+    my_final_reverd = 0
+    reverds = []
+    for _ in range(iterations):
+        game_state_actions, reverd = game_round(game_memory)
+
+        reverds.append(my_final_reverd + reverd)
+        my_final_reverd += reverd
+
+        for game_state_action in game_state_actions:
+            game_memory.update_q(game_state_action[0], game_state_action[1], reverd)
     
+    print('\nEND', str(my_final_reverd))
+    plot_values(reverds)
+    game_memory.save_qs()
+
 
 if __name__ == "__main__":
-    game()
+    game(int(sys.argv[1]))
+
+
+
+
+
+
