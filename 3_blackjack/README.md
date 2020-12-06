@@ -243,5 +243,5 @@ Na kraju se vrši ispis krajnjeg skora, prikazuje grafik naših dobitaka (gubita
 > Primer: python blackjack.py 1000
 
 ## Diskusija
-Ako se pogledaju q vrednosti u data.json dokumentu koje su dobijene nakon 1,000,000 iteracija može se videti da vrlo malo kombinacija (stanja, akcija) zapravo imaju pozitivnu q vrednost. Što bi u interpretaciji značilo da mi nemamo mnogo šansi za pobedom. Svega u 30tak stan sa adekvatnim akcijama imamo nekakve šanse za pobedom. Među tim stanjima se ističu situacije kada mi imamo sumu karata preko 18.
+Ako se pogledaju q vrednosti u data.json dokumentu koje su dobijene nakon 1,000,000 iteracija može se videti da vrlo malo kombinacija (stanja, akcija) zapravo imaju pozitivnu q vrednost. Što bi u interpretaciji značilo da mi nemamo mnogo šansi za pobedom. Svega u 30tak stanja sa adekvatnim akcijama imamo nekakve šanse za pobedom. Među tim stanjima se ističu situacije kada mi imamo sumu karata preko 18.
 **Zaključak je:** Nije isplativo igrati Blackjack!
