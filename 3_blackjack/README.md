@@ -1,8 +1,10 @@
 # 🎲Blackjack
 **Pravila:** 
 Igra ima dva igrača (nas i delitelja). Na početku igre, Igrač i Delitelj dobijaju po dve karte. Pri tome, jedna Deliteljeva karta sakrivena od Igrača. Prvi na potezu je Igrač, koji ima opcu da zahteva novu kartu (*hit*) ili da stane (*hold*). Svaka 'obojena' karta (kralj, dama ili žandar) se broji kao 10, a svaka karta sa brojem (2 - 10) se broji spram svog broja. 'Kec' se može brojati kao 11 ili kao 1. Cilj je dostići ukupan zbir što bliži ili idealno jednak 21. Ukoliko je ukupan zbir iznad 21, tada igrač automatski gubi. Ukoliko ni jedan igrač ije izgubio, pobedio je onaj koji u ukupnom zbiru ima veći broj.
+
 **Strategija delitelja:**
 Zahtevaj novu kartu sve dok u ukupnom zbiru ne dostigneš 17 ili više. Stani, čim je ukupan zbir bar 17.
+
 **Pitanje špila:**
 U ovom slučaju špil će se smatrati beskonačnim, što znači da je podjednako moguće izvući bilo koju od karata u svakom trenutku (eliminišemo takozvano 'brojenje karata').
 
