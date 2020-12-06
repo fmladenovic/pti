@@ -81,7 +81,7 @@ Metoda koja određuje da li se u sumi može koristiti iskoristivi kec i dodaje n
 
 U ovoj klasi se nalazi sama srž logike.  Ideja je da se prate stanja, akcije primenjene u tim stanjima i koja je njihova prosečna dobit. Da se ne bi čuvale sve dobiti pa računala q vrednost, ona se ažurira po sledećoj formuli:
 
-	q(s, a) = q(s, a) + lambda*(r − q(s,a))
+	q(s, a) = q(s, a) + lambda*(r − q(s,a))
 	
 U ovom slučaju memoriju predstavlja jedan rečnik (*dictionary*) ili json objkeat u kome su ključevi parovi stanja akcija, gde je stanje opisano objašnjenim tripletom, a gde je akcija jedna od dve pomenute. 
 Primer stanja u memoriju:
