@@ -1,0 +1,3 @@
+# 🎮 TIC-TAC-TOE ( XO )
+U ovoj implementaciji bota za igranje xo-a korišćen je *q-learning* algoritam. Treniran je da igra protiv minimax algoritma i pokazao je da u malo više od 50% slučajeva može da odigra nerešeno sa minimax algoritmom.
+**Zaključak**: Potrebno je koristiti neki manje pametniji algoritam za treniranje zato što u ovom slučaju naš bot ne ume da kreira pobedničku strategiju (politiku).
