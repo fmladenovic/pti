@@ -347,7 +347,7 @@ if __name__ == "__main__":
     minimax_memory = MinimaxMemory()
 
     learning_iterations = 0
-    play_iterations = 1000
+    play_iterations = 10000
 
     print('END LEARNING: ', game(game_memory, minimax_memory, learning_iterations) )
     if learning_iterations != 0:
